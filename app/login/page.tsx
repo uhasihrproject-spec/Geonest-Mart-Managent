@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { supabaseBrowser } from "@/lib/supabase/browser";
@@ -41,12 +41,10 @@ function pwStrength(pw: string): { score: number; label: string; color: string }
 
 type Stage = "idle" | "loading" | "success" | "error";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const sp = useSearchParams();
   const next = sp.get("next") || "";
-  const supabase = supabaseBrowser();
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -71,6 +69,7 @@ export default function LoginPage() {
     await new Promise(r => setTimeout(r, 300)); // tiny dramatic pause
 
     const email = staffEmailFromUsername(username.trim());
+    const supabase = supabaseBrowser();
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
@@ -396,5 +395,13 @@ export default function LoginPage() {
         )}
       </motion.div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   );
 }
