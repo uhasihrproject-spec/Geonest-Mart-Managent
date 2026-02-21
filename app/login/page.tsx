@@ -33,6 +33,32 @@ function SuccessGlyph({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
+
+function GuideOrb({ mode }: { mode: "idle" | "loading" | "success" | "error" }) {
+  const color = mode === "success" ? "#10B981" : mode === "error" ? "#c0392b" : "#334155";
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 flex items-center gap-2">
+      <motion.div
+        className="h-7 w-7 rounded-xl flex items-center justify-center"
+        style={{ background: `${color}20`, color }}
+        animate={mode === "loading" ? { rotate: [0, 8, -8, 0] } : { rotate: 0 }}
+        transition={{ duration: 0.8, repeat: mode === "loading" ? Infinity : 0 }}
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.2"/><circle cx="5.3" cy="6.3" r="0.6" fill="currentColor"/><circle cx="8.7" cy="6.3" r="0.6" fill="currentColor"/><path d="M5.2 8.7C5.8 9.3 6.4 9.6 7 9.6C7.6 9.6 8.2 9.3 8.8 8.7" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/></svg>
+      </motion.div>
+      <p className="text-[11px] text-slate-500">{mode === "success" ? "Level cleared" : mode === "loading" ? "Checking credentials" : mode === "error" ? "Try another attempt" : "Type your username to start"}</p>
+    </div>
+  );
+}
+
+function ArrowGlyph({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M3.5 8H12.5M9 4.5L12.5 8L9 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
 // Password strength
 function pwStrength(pw: string): { score: number; label: string; color: string } {
   if (!pw) return { score: 0, label: "", color: "" };
@@ -227,6 +253,9 @@ function LoginContent() {
             <p className="text-sm text-slate-400 mt-1">
               {stage === "success" ? "Redirecting you now…" : "Enter your credentials to continue"}
             </p>
+            <div className="mt-3">
+              <GuideOrb mode={stage} />
+            </div>
           </div>
 
           {/* Form */}
@@ -378,7 +407,7 @@ function LoginContent() {
                       animate={canSubmit ? { x: [0, 3, 0] } : {}}
                       transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
                     >
-                      →
+                      <ArrowGlyph className="h-3.5 w-3.5" />
                     </motion.span>
                   </>
                 )}

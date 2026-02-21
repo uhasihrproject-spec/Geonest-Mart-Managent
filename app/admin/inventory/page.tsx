@@ -64,15 +64,17 @@ export default function InventoryPage() {
   const [sort, setSort] = useState<Sort>("demand");
   const [tab, setTab] = useState<Tab>("overview");
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
+  const [err, setErr] = useState<string | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
+  async function loadInventory() {
+    setLoading(true);
+    setErr(null);
+    try {
       const now = new Date();
       const d30 = new Date(now.getTime() - 30 * 86400000);
       const d7 = new Date(now.getTime() - 7 * 86400000);
 
-      const [{ data: products }, { data: rawItems }] = await Promise.all([
+      const [{ data: products, error: productsErr }, { data: rawItems, error: itemsErr }] = await Promise.all([
         supabase.from("products").select("id,name,price,sku").eq("is_active", true),
         supabase
           .from("sale_items")
@@ -80,7 +82,17 @@ export default function InventoryPage() {
           .gte("created_at", d30.toISOString()),
       ]);
 
-      if (!products) { setLoading(false); return; }
+      if (productsErr || itemsErr) {
+        setErr(productsErr?.message || itemsErr?.message || "Failed to load inventory data.");
+        setLoading(false);
+        return;
+      }
+
+      if (!products) {
+        setErr("No products returned from server.");
+        setLoading(false);
+        return;
+      }
 
       const items = (rawItems || []) as { product_id: string; qty: number; created_at: string }[];
 
@@ -120,7 +132,14 @@ export default function InventoryPage() {
 
       setStats(combined);
       setLoading(false);
-    })();
+    } catch {
+      setErr("Unable to load inventory right now.");
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadInventory();
   }, []);
 
   // Max rate for bar scaling
@@ -197,6 +216,13 @@ export default function InventoryPage() {
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">Inventory Intelligence</h1>
           <p className="text-sm text-slate-400 mt-0.5">Demand analysis based on actual sales data.</p>
         </div>
+        <button
+          onClick={loadInventory}
+          disabled={loading}
+          className="self-start rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 hover:bg-slate-50 transition disabled:opacity-50"
+        >
+          Refresh
+        </button>
 
         {/* Alert pills */}
         {!loading && (
@@ -219,6 +245,10 @@ export default function InventoryPage() {
           </div>
         )}
       </motion.div>
+
+      {err && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{err}</div>
+      )}
 
       {/* Tab bar */}
       <motion.div
@@ -411,7 +441,7 @@ export default function InventoryPage() {
                             p.trend === "rising" ? "text-emerald-600" :
                             p.trend === "falling" ? "text-[#c0392b]" : "text-slate-400",
                           ].join(" ")}>
-                            {p.trend === "rising" ? "↑" : p.trend === "falling" ? "↓" : "→"}
+                            {p.trend === "rising" ? <span aria-hidden="true">▲</span> : p.trend === "falling" ? <span aria-hidden="true">▼</span> : <span aria-hidden="true">◆</span>}
                             {p.trend}
                           </span>
                         </div>

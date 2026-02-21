@@ -115,6 +115,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [me, setMe] = useState<Me | null>(null);
   const [todayRev, setTodayRev] = useState<number | null>(null);
   const [ready, setReady] = useState(false);
+  const [notifyOpen, setNotifyOpen] = useState(false);
   const backdropRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -134,7 +135,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   /* keyboard ESC to close */
   useEffect(() => {
-    const fn = (e: KeyboardEvent) => { if (e.key === "Escape") setMobileOpen(false); };
+    const fn = (e: KeyboardEvent) => { if (e.key === "Escape") { setMobileOpen(false); setNotifyOpen(false); } };
     window.addEventListener("keydown", fn);
     return () => window.removeEventListener("keydown", fn);
   }, []);
@@ -301,7 +302,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <span className="text-[11px] text-[#6B6B6B]">GHS {fmt(todayRev)}</span>
               </div>
             )}
-            <button className="relative h-9 w-9 rounded-lg flex items-center justify-center text-[#ABABAB] hover:bg-[#F5F5F5] transition-all">
+            <button
+              onClick={() => setNotifyOpen((v) => !v)}
+              className="relative h-9 w-9 rounded-lg flex items-center justify-center text-[#ABABAB] hover:bg-[#F5F5F5] transition-all"
+            >
               <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1C5.567 1 4 2.567 4 4.5V9L2.5 10.5V11.5H12.5V10.5L11 9V4.5C11 2.567 9.433 1 7.5 1Z" stroke="currentColor" strokeWidth="1.1"/><path d="M6 11.5C6 12.328 6.672 13 7.5 13C8.328 13 9 12.328 9 11.5" stroke="currentColor" strokeWidth="1.1"/></svg>
               <span className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-[#c0392b]" />
             </button>
@@ -315,6 +319,46 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {children}
         </main>
       </div>
+
+
+      <AnimatePresence>
+        {notifyOpen && (
+          <motion.div
+            className="fixed inset-0 z-[60] flex items-start justify-end p-3 sm:p-5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ backgroundColor: "rgba(0,0,0,0.12)" }}
+            onClick={() => setNotifyOpen(false)}
+          >
+            <motion.div
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, y: -8, x: 8 }}
+              animate={{ opacity: 1, y: 0, x: 0 }}
+              exit={{ opacity: 0, y: -8, x: 8 }}
+              transition={{ duration: 0.16 }}
+              className="w-full max-w-sm rounded-2xl border border-[#F0F0F0] bg-white shadow-2xl overflow-hidden"
+            >
+              <div className="px-4 py-3 border-b border-[#F6F6F6] flex items-center justify-between">
+                <p className="text-[13px] text-[#1A1A1A] font-[500]">Notifications</p>
+                <button onClick={() => setNotifyOpen(false)} className="h-7 w-7 rounded-lg hover:bg-[#F6F6F6] text-[#ABABAB]">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2L10 10M10 2L2 10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>
+                </button>
+              </div>
+              <div className="p-3 space-y-2">
+                <div className="rounded-xl border border-[#F0F0F0] bg-[#FAFAFA] p-3">
+                  <p className="text-[12px] text-[#1A1A1A]">Today revenue update</p>
+                  <p className="text-[11px] text-[#ABABAB] mt-1">Current total: GHS {todayRev === null ? "—" : fmt(todayRev)}</p>
+                </div>
+                <div className="rounded-xl border border-[#F0F0F0] bg-white p-3">
+                  <p className="text-[12px] text-[#1A1A1A]">Welcome back{me?.full_name ? `, ${me.full_name}` : ""}</p>
+                  <p className="text-[11px] text-[#ABABAB] mt-1">Use the sidebar to manage products, sales, and inventory.</p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mobile sidebar overlay */}
       <AnimatePresence>

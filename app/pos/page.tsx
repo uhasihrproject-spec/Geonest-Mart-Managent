@@ -191,6 +191,14 @@ async function confirmScanPayment() {
     });
   }
 
+  function removeItem(id: string) {
+    setCart((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  }
+
 async function checkout() {
   if (!cartItems.length) return;
 
@@ -358,6 +366,15 @@ async function checkout() {
                 >
                   {/* Qty badge */}
                   {inCart > 0 && (
+                    <>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); removeItem(p.id); }}
+                      className="absolute top-2 left-2 h-6 w-6 rounded-lg bg-white/85 hover:bg-white text-slate-500 hover:text-[#c0392b] flex items-center justify-center z-10"
+                      aria-label="Remove from cart"
+                    >
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 2L8 8M8 2L2 8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>
+                    </button>
                     <motion.span
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
@@ -366,6 +383,7 @@ async function checkout() {
                     >
                       {inCart}
                     </motion.span>
+                    </>
                   )}
 
                   {/* Popular dot */}
@@ -731,6 +749,13 @@ async function checkout() {
                                   +
                                 </button>
                               </div>
+                              <button
+                                onClick={() => removeItem(it.product.id)}
+                                className="h-6 w-6 rounded-md text-slate-400 hover:text-[#c0392b] hover:bg-white transition-all"
+                                aria-label="Remove item"
+                              >
+                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 2L8 8M8 2L2 8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>
+                              </button>
                               <p className="text-xs font-bold text-slate-800 min-w-[64px] text-right">GHS {fmt(it.qty * it.product.price)}</p>
                             </div>
                           </div>
@@ -763,7 +788,7 @@ async function checkout() {
                             : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50",
                         ].join(" ")}
                       >
-                        {m === "CASH" ? "💵 Cash" : "📱 Mobile Money"}
+                        {m === "CASH" ? "Cash" : "Mobile Money"}
                       </button>
                     ))}
                   </div>

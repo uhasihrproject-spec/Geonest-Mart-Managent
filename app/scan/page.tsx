@@ -24,7 +24,7 @@ function Icon({
   name,
   className,
 }: {
-  name: "search" | "x" | "cart" | "plus" | "minus" | "receipt" | "check" | "clock" | "alert";
+  name: "search" | "x" | "cart" | "plus" | "minus" | "receipt" | "check" | "clock" | "alert" | "trash";
   className?: string;
 }) {
   const cls = cx("inline-block", className);
@@ -99,6 +99,13 @@ function Icon({
         <svg className={cls} width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
           <circle cx="8" cy="8" r="6.2" stroke="currentColor" strokeWidth="1.2" />
           <path d="M8 4.5v4M8 11.4h.01" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+        </svg>
+      );
+
+    case "trash":
+      return (
+        <svg className={cls} width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3.8 4.2H12.2M6.1 4.2V3.1C6.1 2.7 6.4 2.4 6.8 2.4H9.2C9.6 2.4 9.9 2.7 9.9 3.1V4.2M5.1 5.6V12.1C5.1 12.8 5.7 13.4 6.4 13.4H9.6C10.3 13.4 10.9 12.8 10.9 12.1V5.6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
         </svg>
       );
   }
@@ -211,6 +218,14 @@ export default function ScanPage() {
       const next = { ...prev };
       if (qty <= 0) delete next[id];
       else next[id] = { ...next[id], qty };
+      return next;
+    });
+  }
+
+  function removeItem(id: string) {
+    setCart((prev) => {
+      const next = { ...prev };
+      delete next[id];
       return next;
     });
   }
@@ -463,6 +478,14 @@ export default function ScanPage() {
                         <span className="text-[12px] text-slate-800">{inCart}</span>
                         <button
                           type="button"
+                          onClick={() => removeItem(p.id)}
+                          className="h-9 w-10 rounded-2xl hover:bg-white transition text-slate-700 flex items-center justify-center"
+                          aria-label="Remove item"
+                        >
+                          <Icon name="trash" className="text-slate-700" />
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => add(p)}
                           className="h-9 w-10 rounded-2xl hover:bg-white transition text-slate-700 flex items-center justify-center"
                           aria-label="Increase quantity"
@@ -569,6 +592,14 @@ export default function ScanPage() {
                             <Icon name="minus" className="text-slate-700" />
                           </button>
                           <span className="text-[12px] text-slate-800">{it.qty}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeItem(it.product.id)}
+                            className="h-9 w-10 rounded-2xl hover:bg-slate-50 transition text-slate-700 flex items-center justify-center"
+                            aria-label="Remove item"
+                          >
+                            <Icon name="trash" className="text-slate-700" />
+                          </button>
                           <button
                             type="button"
                             onClick={() => setQty(it.product.id, it.qty + 1)}
