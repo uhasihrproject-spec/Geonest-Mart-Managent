@@ -6,7 +6,8 @@ function isPublicPath(pathname: string) {
     pathname === "/login" ||
     pathname.startsWith("/scan") ||
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/favicon")
+    pathname.startsWith("/favicon") ||
+    pathname.startsWith("/logo")
   );
 }
 
@@ -16,6 +17,10 @@ export async function middleware(req: NextRequest) {
   if (isPublicPath(pathname)) return NextResponse.next();
 
   let res = NextResponse.next();
+
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return NextResponse.next();
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

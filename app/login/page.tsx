@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { supabaseBrowser } from "@/lib/supabase/browser";
@@ -25,6 +25,40 @@ const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
   size: 6 + (i * 7) % 18,
 }));
 
+function SuccessGlyph({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M3.5 8.2L6.6 11.3L12.5 5.4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+
+function GuideOrb({ mode }: { mode: "idle" | "loading" | "success" | "error" }) {
+  const color = mode === "success" ? "#10B981" : mode === "error" ? "#c0392b" : "#334155";
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 flex items-center gap-2">
+      <motion.div
+        className="h-7 w-7 rounded-xl flex items-center justify-center"
+        style={{ background: `${color}20`, color }}
+        animate={mode === "loading" ? { rotate: [0, 8, -8, 0] } : { rotate: 0 }}
+        transition={{ duration: 0.8, repeat: mode === "loading" ? Infinity : 0 }}
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.2"/><circle cx="5.3" cy="6.3" r="0.6" fill="currentColor"/><circle cx="8.7" cy="6.3" r="0.6" fill="currentColor"/><path d="M5.2 8.7C5.8 9.3 6.4 9.6 7 9.6C7.6 9.6 8.2 9.3 8.8 8.7" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/></svg>
+      </motion.div>
+      <p className="text-[11px] text-slate-500">{mode === "success" ? "Level cleared" : mode === "loading" ? "Checking credentials" : mode === "error" ? "Try another attempt" : "Type your username to start"}</p>
+    </div>
+  );
+}
+
+function ArrowGlyph({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M3.5 8H12.5M9 4.5L12.5 8L9 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
 // Password strength
 function pwStrength(pw: string): { score: number; label: string; color: string } {
   if (!pw) return { score: 0, label: "", color: "" };
@@ -41,12 +75,10 @@ function pwStrength(pw: string): { score: number; label: string; color: string }
 
 type Stage = "idle" | "loading" | "success" | "error";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const sp = useSearchParams();
   const next = sp.get("next") || "";
-  const supabase = supabaseBrowser();
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -71,6 +103,7 @@ export default function LoginPage() {
     await new Promise(r => setTimeout(r, 300)); // tiny dramatic pause
 
     const email = staffEmailFromUsername(username.trim());
+    const supabase = supabaseBrowser();
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
@@ -176,10 +209,10 @@ export default function LoginPage() {
                 transition={{ duration: 0.5 }}
                 className="h-10 w-10 rounded-xl overflow-hidden border border-slate-100 shadow-sm flex-shrink-0"
               >
-                <img src="/logo/logo.svg" alt="Fresh Work" className="h-full w-full object-contain" />
+                <img src="/logo/logo.svg" alt="Geonest Mart" className="h-full w-full object-contain" />
               </motion.div>
               <div>
-                <p className="text-sm font-bold text-slate-900">Fresh Work</p>
+                <p className="text-sm font-bold text-slate-900">Geonest Mart</p>
                 <p className="text-[10px] text-slate-400">Staff Portal</p>
               </div>
             </div>
@@ -203,7 +236,7 @@ export default function LoginPage() {
                 transition={{ type: "spring", stiffness: 500, damping: 25 }}
                 style={{ color: username.trim() ? (stage === "success" ? "#059669" : "#c0392b") : "#94a3b8" }}
               >
-                {stage === "success" ? "✓" : avatarChar}
+                {stage === "success" ? <SuccessGlyph className="h-4 w-4 text-emerald-600" /> : avatarChar}
               </motion.span>
             </motion.div>
           </div>
@@ -215,11 +248,14 @@ export default function LoginPage() {
               transition={{ duration: 0.35 }}
               className="text-2xl font-black text-slate-900 tracking-tight"
             >
-              {stage === "success" ? "Welcome back! 👋" : "Sign in"}
+              {stage === "success" ? "Welcome back" : "Sign in"}
             </motion.h1>
             <p className="text-sm text-slate-400 mt-1">
               {stage === "success" ? "Redirecting you now…" : "Enter your credentials to continue"}
             </p>
+            <div className="mt-3">
+              <GuideOrb mode={stage} />
+            </div>
           </div>
 
           {/* Form */}
@@ -361,7 +397,7 @@ export default function LoginPage() {
                   </>
                 ) : stage === "success" ? (
                   <>
-                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500 }}>✓</motion.span>
+                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500 }}><SuccessGlyph className="h-4 w-4" /></motion.span>
                     Signed in!
                   </>
                 ) : (
@@ -371,7 +407,7 @@ export default function LoginPage() {
                       animate={canSubmit ? { x: [0, 3, 0] } : {}}
                       transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
                     >
-                      →
+                      <ArrowGlyph className="h-3.5 w-3.5" />
                     </motion.span>
                   </>
                 )}
@@ -381,7 +417,7 @@ export default function LoginPage() {
 
           {/* Footer */}
           <p className="mt-6 text-center text-[11px] text-slate-400">
-            Powered by <span className="font-semibold text-slate-600">Fresh Work</span>
+            Powered by <span className="font-semibold text-slate-600">Geonest Mart</span>
           </p>
         </div>
 
@@ -396,5 +432,13 @@ export default function LoginPage() {
         )}
       </motion.div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   );
 }

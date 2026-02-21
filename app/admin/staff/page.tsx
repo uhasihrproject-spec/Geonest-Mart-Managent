@@ -87,6 +87,22 @@ export default function StaffPage() {
     load();
   }
 
+
+
+  async function removeStaff(id: string, username: string) {
+    const ok = window.confirm(`Remove @${username}? This action cannot be undone.`);
+    if (!ok) return;
+    const res = await fetch("/api/admin/staff/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) return setFlash({ type: "err", text: json.error || "Failed." });
+    setFlash({ type: "ok", text: `Removed @${username}` });
+    load();
+  }
+
   async function resetPassword(id: string) {
     const pw = prompt("New temporary password (8+ characters):");
     if (!pw || pw.trim().length < 8) return setFlash({ type: "err", text: "Password must be 8+ characters." });
@@ -101,7 +117,7 @@ export default function StaffPage() {
   const totalStaff = rows.filter((r) => r.role === "STAFF").length;
 
   return (
-    <div className="max-w-4xl mx-auto px-5 py-8" style={{ fontFamily: "'Geist','DM Sans','Helvetica Neue',sans-serif" }}>
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8" style={{ fontFamily: "'Geist','DM Sans','Helvetica Neue',sans-serif" }}>
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
@@ -240,6 +256,9 @@ export default function StaffPage() {
                       <button onClick={() => resetPassword(u.id)} className="rounded-lg border border-[#E8E8E8] px-3 py-1.5 text-[11px] text-[#6B6B6B] hover:bg-[#F5F5F5] transition-all">
                         Reset pw
                       </button>
+                      <button onClick={() => removeStaff(u.id, u.username)} className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-[11px] text-red-600 hover:bg-red-100 transition-all">
+                        Remove
+                      </button>
                     </>
                   ) : (
                     <span className="text-[11px] text-[#CACACA]">Protected</span>
@@ -266,6 +285,9 @@ export default function StaffPage() {
                     </button>
                     <button onClick={() => resetPassword(u.id)} className="flex-1 rounded-xl py-2.5 text-[12px] border border-[#E8E8E8] text-[#6B6B6B] text-center">
                       Reset password
+                    </button>
+                    <button onClick={() => removeStaff(u.id, u.username)} className="flex-1 rounded-xl py-2.5 text-[12px] border border-red-200 bg-red-50 text-red-600 text-center">
+                      Remove
                     </button>
                   </div>
                 )}

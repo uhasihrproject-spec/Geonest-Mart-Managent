@@ -30,7 +30,7 @@ export default function ProductsPage() {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await supabase.from("products").select("id,name,price,sku,is_active").order("name");
+    const { data, error } = await supabase.from("products").select("id,name,price,sku,is_active").eq("is_active", true).order("name");
     setLoading(false);
     if (error) return setFlash({ type: "err", text: error.message });
     setRows((data as any) || []);
@@ -54,6 +54,17 @@ export default function ProductsPage() {
     load();
   }
 
+
+
+  async function removeProduct(prod: Product) {
+    const ok = window.confirm(`Remove product "${prod.name}"?`);
+    if (!ok) return;
+    const { error } = await supabase.from("products").update({ is_active: false }).eq("id", prod.id);
+    if (error) return setFlash({ type: "err", text: error.message });
+    setFlash({ type: "ok", text: "Product removed." });
+    load();
+  }
+
   async function updatePrice(prod: Product, newPrice: number) {
     const { error: uErr } = await supabase.from("products").update({ price: newPrice }).eq("id", prod.id);
     if (uErr) return setFlash({ type: "err", text: uErr.message });
@@ -64,7 +75,7 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-5 py-8" style={{ fontFamily: "'Geist','DM Sans','Helvetica Neue',sans-serif" }}>
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8" style={{ fontFamily: "'Geist','DM Sans','Helvetica Neue',sans-serif" }}>
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
@@ -173,7 +184,7 @@ export default function ProductsPage() {
           </div>
         ) : (
           filtered.map((p, i) => (
-            <ProductRow key={p.id} p={p} index={i} total={filtered.length} onUpdate={updatePrice} />
+            <ProductRow key={p.id} p={p} index={i} total={filtered.length} onUpdate={updatePrice} onRemove={removeProduct} />
           ))
         )}
       </div>
@@ -181,7 +192,7 @@ export default function ProductsPage() {
   );
 }
 
-function ProductRow({ p, index, total, onUpdate }: { p: Product; index: number; total: number; onUpdate: (p: Product, n: number) => Promise<void> }) {
+function ProductRow({ p, index, total, onUpdate, onRemove }: { p: Product; index: number; total: number; onUpdate: (p: Product, n: number) => Promise<void>; onRemove: (p: Product) => Promise<void> }) {
   const [val, setVal] = useState(String(p.price));
   const [saving, setSaving] = useState(false);
   useEffect(() => { setVal(String(p.price)); }, [p.price]);
@@ -228,6 +239,12 @@ function ProductRow({ p, index, total, onUpdate }: { p: Product; index: number; 
           >
             {saving ? "…" : "Save"}
           </button>
+          <button
+            onClick={() => onRemove(p)}
+            className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-[11px] text-red-600 hover:bg-red-100 transition-all"
+          >
+            Remove
+          </button>
         </div>
       </div>
 
@@ -246,6 +263,12 @@ function ProductRow({ p, index, total, onUpdate }: { p: Product; index: number; 
           </div>
           <button disabled={!canSave || saving} onClick={save} className="rounded-xl bg-[#c0392b] px-4 py-2.5 text-[12px] text-white hover:bg-[#a93226] disabled:opacity-30 transition-all">
             {saving ? "…" : "Save"}
+          </button>
+          <button
+            onClick={() => onRemove(p)}
+            className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-[11px] text-red-600 hover:bg-red-100 transition-all"
+          >
+            Remove
           </button>
         </div>
       </div>

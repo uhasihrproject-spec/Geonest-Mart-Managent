@@ -29,7 +29,7 @@ const URGENCY = {
     badge: "bg-[#FFF0EE] text-[#c0392b] border border-[#c0392b]/20",
     bar: "#c0392b",
     barBg: "#FFF0EE",
-    icon: "🔴",
+    iconClass: "bg-[#c0392b]",
   },
   warning: {
     label: "Moderate demand",
@@ -38,7 +38,7 @@ const URGENCY = {
     badge: "bg-amber-50 text-amber-700 border border-amber-200",
     bar: "#D97706",
     barBg: "#FFFBEB",
-    icon: "🟡",
+    iconClass: "bg-amber-500",
   },
   low: {
     label: "Low demand",
@@ -47,7 +47,7 @@ const URGENCY = {
     badge: "bg-slate-100 text-slate-500",
     bar: "#CBD5E1",
     barBg: "#F8FAFC",
-    icon: "⚪",
+    iconClass: "bg-slate-300",
   },
 };
 
@@ -64,15 +64,17 @@ export default function InventoryPage() {
   const [sort, setSort] = useState<Sort>("demand");
   const [tab, setTab] = useState<Tab>("overview");
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
+  const [err, setErr] = useState<string | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
+  async function loadInventory() {
+    setLoading(true);
+    setErr(null);
+    try {
       const now = new Date();
       const d30 = new Date(now.getTime() - 30 * 86400000);
       const d7 = new Date(now.getTime() - 7 * 86400000);
 
-      const [{ data: products }, { data: rawItems }] = await Promise.all([
+      const [{ data: products, error: productsErr }, { data: rawItems, error: itemsErr }] = await Promise.all([
         supabase.from("products").select("id,name,price,sku").eq("is_active", true),
         supabase
           .from("sale_items")
@@ -80,7 +82,17 @@ export default function InventoryPage() {
           .gte("created_at", d30.toISOString()),
       ]);
 
-      if (!products) { setLoading(false); return; }
+      if (productsErr || itemsErr) {
+        setErr(productsErr?.message || itemsErr?.message || "Failed to load inventory data.");
+        setLoading(false);
+        return;
+      }
+
+      if (!products) {
+        setErr("No products returned from server.");
+        setLoading(false);
+        return;
+      }
 
       const items = (rawItems || []) as { product_id: string; qty: number; created_at: string }[];
 
@@ -120,7 +132,14 @@ export default function InventoryPage() {
 
       setStats(combined);
       setLoading(false);
-    })();
+    } catch {
+      setErr("Unable to load inventory right now.");
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadInventory();
   }, []);
 
   // Max rate for bar scaling
@@ -179,7 +198,7 @@ export default function InventoryPage() {
 
   return (
     <div
-      className="max-w-[1080px] mx-auto space-y-5"
+      className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-5"
       style={{ fontFamily: "'DM Sans','Helvetica Neue',sans-serif" }}
     >
       {/* Header */}
@@ -197,6 +216,13 @@ export default function InventoryPage() {
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">Inventory Intelligence</h1>
           <p className="text-sm text-slate-400 mt-0.5">Demand analysis based on actual sales data.</p>
         </div>
+        <button
+          onClick={loadInventory}
+          disabled={loading}
+          className="self-start rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600 hover:bg-slate-50 transition disabled:opacity-50"
+        >
+          Refresh
+        </button>
 
         {/* Alert pills */}
         {!loading && (
@@ -220,6 +246,10 @@ export default function InventoryPage() {
         )}
       </motion.div>
 
+      {err && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{err}</div>
+      )}
+
       {/* Tab bar */}
       <motion.div
         initial={{ opacity: 0, y: 6 }}
@@ -228,8 +258,8 @@ export default function InventoryPage() {
         className="flex items-center gap-1 bg-slate-100/60 rounded-xl p-1 w-fit"
       >
         {([
-          { key: "overview", label: "📊 Overview" },
-          { key: "market-list", label: `🛒 Market List${marketList.length > 0 ? ` (${marketList.length})` : ""}` },
+          { key: "overview", label: "Overview" },
+          { key: "market-list", label: `Market List${marketList.length > 0 ? ` (${marketList.length})` : ""}` },
         ] as { key: Tab; label: string }[]).map(t => (
           <button
             key={t.key}
@@ -300,8 +330,8 @@ export default function InventoryPage() {
                 <div className="flex items-center gap-1.5 flex-wrap">
                   {([
                     { key: "all", label: "All" },
-                    { key: "critical", label: "🔴 High" },
-                    { key: "warning", label: "🟡 Moderate" },
+                    { key: "critical", label: "High" },
+                    { key: "warning", label: "Moderate" },
                   ] as { key: Filter; label: string }[]).map(f => (
                     <button
                       key={f.key}
@@ -411,7 +441,7 @@ export default function InventoryPage() {
                             p.trend === "rising" ? "text-emerald-600" :
                             p.trend === "falling" ? "text-[#c0392b]" : "text-slate-400",
                           ].join(" ")}>
-                            {p.trend === "rising" ? "↑" : p.trend === "falling" ? "↓" : "→"}
+                            {p.trend === "rising" ? <span aria-hidden="true">▲</span> : p.trend === "falling" ? <span aria-hidden="true">▼</span> : <span aria-hidden="true">◆</span>}
                             {p.trend}
                           </span>
                         </div>
@@ -461,7 +491,7 @@ export default function InventoryPage() {
             <div className="rounded-2xl bg-gradient-to-br from-[#c0392b] to-[#922b21] p-5 text-white shadow-[0_6px_24px_rgba(192,57,43,0.3)]">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="text-xs font-semibold text-red-200 uppercase tracking-wider mb-1">🛒 Market List</div>
+                  <div className="text-xs font-semibold text-red-200 uppercase tracking-wider mb-1">Market List</div>
                   <h2 className="text-lg font-bold mb-0.5">Restock Needed</h2>
                   <p className="text-sm text-red-100">
                     {marketList.length} products to restock · estimated{" "}
@@ -471,8 +501,11 @@ export default function InventoryPage() {
                     Quantities are 2-week supply at current demand rate.
                   </p>
                 </div>
-                <div className="flex-shrink-0 h-12 w-12 rounded-2xl bg-white/15 flex items-center justify-center text-2xl">
-                  🛍️
+                <div className="flex-shrink-0 h-12 w-12 rounded-2xl bg-white/15 flex items-center justify-center">
+                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                    <path d="M6.8 8.5H15.2L14.4 17.6H7.6L6.8 8.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                    <path d="M8.4 8.4V6.9C8.4 5.5 9.6 4.3 11 4.3C12.4 4.3 13.6 5.5 13.6 6.9V8.4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
                 </div>
               </div>
               <div className="mt-4 flex items-center gap-3 flex-wrap">
@@ -508,7 +541,7 @@ export default function InventoryPage() {
               </div>
             ) : marketList.length === 0 ? (
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 text-center">
-                <div className="text-3xl mb-3">✅</div>
+                <div className="mb-3 flex justify-center text-emerald-600"><svg width="28" height="28" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="8.4" stroke="currentColor" strokeWidth="1.4"/><path d="M6.3 10.2L8.8 12.7L13.8 7.7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></div>
                 <p className="text-sm font-bold text-slate-700">All products are in good shape</p>
                 <p className="text-xs text-slate-400 mt-1">No items currently flagged for restock based on sales data.</p>
               </div>

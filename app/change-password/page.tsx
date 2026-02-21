@@ -17,7 +17,7 @@ function getStrength(pw: string): { score: number; label: string; color: string;
   if (score === 1) return { score, label: "Weak", color: "#F59E0B", bg: "#FFFBEB" };
   if (score === 2) return { score, label: "Fair", color: "#F59E0B", bg: "#FFFBEB" };
   if (score === 3) return { score, label: "Good", color: "#10B981", bg: "#ECFDF5" };
-  return { score: 4, label: "Strong 💪", color: "#059669", bg: "#D1FAE5" };
+  return { score: 4, label: "Strong", color: "#059669", bg: "#D1FAE5" };
 }
 
 const RULES = [
@@ -51,6 +51,25 @@ const CONFETTI = Array.from({ length: 30 }, (_, i) => ({
   delay: i * 0.04,
   x: Math.random(),
 }));
+
+function QuestGuide({ stage }: { stage: "idle" | "loading" | "success" }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 flex items-center gap-2">
+      <motion.div
+        className="h-7 w-7 rounded-xl bg-[#c0392b]/10 text-[#c0392b] flex items-center justify-center"
+        animate={stage === "loading" ? { y: [0, -2, 0] } : { y: 0 }}
+        transition={{ duration: 0.8, repeat: stage === "loading" ? Infinity : 0 }}
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><rect x="2.4" y="5.4" width="9.2" height="6.2" rx="1.2" stroke="currentColor" strokeWidth="1.2"/><path d="M4.1 5.3V4.3C4.1 2.9 5.1 1.9 6.5 1.9H7.5C8.9 1.9 9.9 2.9 9.9 4.3V5.3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
+      </motion.div>
+      <p className="text-[11px] text-slate-500">{stage === "success" ? "Password quest completed" : stage === "loading" ? "Saving your new key" : "Complete all rules to unlock"}</p>
+    </div>
+  );
+}
+
+function ArrowGlyph({ className = "h-4 w-4" }: { className?: string }) {
+  return <svg className={className} viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8H12.5M9 4.5L12.5 8L9 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+}
 
 type Stage = "idle" | "loading" | "success";
 
@@ -136,10 +155,10 @@ export default function ChangePasswordPage() {
           {/* Header */}
           <div className="flex items-center gap-3 mb-8">
             <div className="h-10 w-10 rounded-xl overflow-hidden border border-slate-100 shadow-sm flex-shrink-0">
-              <img src="/logo/logo.svg" alt="Fresh Work" className="h-full w-full object-contain" />
+              <img src="/logo/logo.svg" alt="Geonest Mart" className="h-full w-full object-contain" />
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-900">Fresh Work</p>
+              <p className="text-sm font-bold text-slate-900">Geonest Mart</p>
               <p className="text-[10px] text-slate-400">Staff Portal</p>
             </div>
           </div>
@@ -159,9 +178,9 @@ export default function ChangePasswordPage() {
                   initial={{ scale: 0, rotate: -20 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ type: "spring", stiffness: 400, damping: 20, delay: 0.1 }}
-                  className="text-5xl mb-4"
+                  className="mb-4 flex justify-center text-emerald-600"
                 >
-                  🏆
+                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 4H17V8C17 10.8 14.8 13 12 13C9.2 13 7 10.8 7 8V4Z" stroke="currentColor" strokeWidth="1.4"/><path d="M9.5 14.2V17.2M14.5 14.2V17.2M8 20H16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
                 </motion.div>
                 <h1 className="text-2xl font-black text-slate-900 tracking-tight">Password set!</h1>
                 <p className="text-sm text-slate-400 mt-1">Heading to the POS now…</p>
@@ -175,10 +194,13 @@ export default function ChangePasswordPage() {
                 className="mb-6"
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-lg">🔐</span>
+                  <span className="text-[#c0392b]"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="3" y="8" width="12" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.3"/><path d="M5.5 8V6.5C5.5 4.843 6.843 3.5 8.5 3.5H9.5C11.157 3.5 12.5 4.843 12.5 6.5V8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg></span>
                   <h1 className="text-2xl font-black text-slate-900 tracking-tight">New password</h1>
                 </div>
                 <p className="text-sm text-slate-400">This is your first login — set a secure password to continue.</p>
+                <div className="mt-3">
+                  <QuestGuide stage={stage} />
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -394,7 +416,7 @@ export default function ChangePasswordPage() {
                     <>
                       Set password
                       {canSubmit && (
-                        <motion.span animate={{ x: [0, 3, 0] }} transition={{ duration: 1.4, repeat: Infinity }}>→</motion.span>
+                        <motion.span animate={{ x: [0, 3, 0] }} transition={{ duration: 1.4, repeat: Infinity }}><ArrowGlyph className="h-3.5 w-3.5" /></motion.span>
                       )}
                     </>
                   )}
