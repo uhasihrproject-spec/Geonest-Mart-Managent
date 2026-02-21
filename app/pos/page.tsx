@@ -718,46 +718,57 @@ async function checkout() {
                           transition={{ duration: 0.18 }}
                           className="overflow-hidden"
                         >
-                          <div className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/60 px-3.5 py-3">
-                            {/* Color dot */}
-                            <div
-                              className="h-8 w-8 rounded-lg flex-shrink-0 flex items-center justify-center text-xs font-bold"
-                              style={{
-                                background: palette(it.product.name).accent + "18",
-                                color: palette(it.product.name).text,
-                              }}
-                            >
-                              {it.product.name[0].toUpperCase()}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-semibold text-slate-800 truncate">{it.product.name}</p>
-                              <p className="text-[10px] text-slate-400">GHS {fmt(it.product.price)} ea.</p>
-                            </div>
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              <div className="flex items-center rounded-lg border border-slate-200 bg-white overflow-hidden">
-                                <button
-                                  onClick={() => setQty(it.product.id, it.qty - 1)}
-                                  className="h-6 w-6 flex items-center justify-center text-slate-400 hover:text-[#c0392b] hover:bg-[#c0392b]/5 transition-all text-sm font-bold"
-                                >
-                                  −
-                                </button>
-                                <span className="px-2 text-[11px] font-bold text-slate-800 min-w-[20px] text-center">{it.qty}</span>
-                                <button
-                                  onClick={() => setQty(it.product.id, it.qty + 1)}
-                                  className="h-6 w-6 flex items-center justify-center text-slate-400 hover:text-[#c0392b] hover:bg-[#c0392b]/5 transition-all text-sm font-bold"
-                                >
-                                  +
-                                </button>
-                              </div>
+                          <div className="relative group">
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-2 md:pr-0">
                               <button
                                 onClick={() => removeItem(it.product.id)}
-                                className="h-6 w-6 rounded-md text-slate-400 hover:text-[#c0392b] hover:bg-white transition-all"
-                                aria-label="Remove item"
+                                className="h-8 w-8 rounded-lg bg-[#c0392b] text-white flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                                aria-label="Delete item"
                               >
-                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 2L8 8M8 2L2 8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>
+                                <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 2L9 9M9 2L2 9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
                               </button>
-                              <p className="text-xs font-bold text-slate-800 min-w-[64px] text-right">GHS {fmt(it.qty * it.product.price)}</p>
                             </div>
+                            <motion.div
+                              drag="x"
+                              dragConstraints={{ left: -92, right: 0 }}
+                              dragElastic={0.08}
+                              onDragEnd={(_, info) => { if (info.offset.x < -72) removeItem(it.product.id); }}
+                              className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/60 px-3.5 py-3 relative z-[1]"
+                            >
+                              {/* Color dot */}
+                              <div
+                                className="h-8 w-8 rounded-lg flex-shrink-0 flex items-center justify-center text-xs font-bold"
+                                style={{
+                                  background: palette(it.product.name).accent + "18",
+                                  color: palette(it.product.name).text,
+                                }}
+                              >
+                                {it.product.name[0].toUpperCase()}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-semibold text-slate-800 truncate">{it.product.name}</p>
+                                <p className="text-[10px] text-slate-400">GHS {fmt(it.product.price)} ea.</p>
+                                <p className="text-[10px] text-slate-300 md:hidden">Swipe left to remove</p>
+                              </div>
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                <div className="flex items-center rounded-lg border border-slate-200 bg-white overflow-hidden">
+                                  <button
+                                    onClick={() => setQty(it.product.id, it.qty - 1)}
+                                    className="h-6 w-6 flex items-center justify-center text-slate-400 hover:text-[#c0392b] hover:bg-[#c0392b]/5 transition-all text-sm font-bold"
+                                  >
+                                    −
+                                  </button>
+                                  <span className="px-2 text-[11px] font-bold text-slate-800 min-w-[20px] text-center">{it.qty}</span>
+                                  <button
+                                    onClick={() => setQty(it.product.id, it.qty + 1)}
+                                    className="h-6 w-6 flex items-center justify-center text-slate-400 hover:text-[#c0392b] hover:bg-[#c0392b]/5 transition-all text-sm font-bold"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                                <p className="text-xs font-bold text-slate-800 min-w-[64px] text-right">GHS {fmt(it.qty * it.product.price)}</p>
+                              </div>
+                            </motion.div>
                           </div>
                         </motion.div>
                       ))}

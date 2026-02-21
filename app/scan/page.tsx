@@ -568,48 +568,61 @@ export default function ScanPage() {
                 ) : (
                   <div className="space-y-2">
                     {cartItems.map((it) => (
-                      <div key={it.product.id} className="rounded-3xl border border-slate-100 bg-slate-50 p-3.5">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="text-[12px] text-slate-900 truncate">{it.product.name}</p>
-                            <p className="mt-1 text-[11px] text-slate-500">
-                              {it.qty} × {money(it.product.price)}
-                            </p>
+                      <motion.div key={it.product.id} className="rounded-3xl border border-slate-100 bg-slate-50 p-0 overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                        <div className="relative group">
+                          <div className="absolute inset-y-0 right-0 flex items-center pr-2 md:pr-0">
+                            <button
+                              type="button"
+                              onClick={() => removeItem(it.product.id)}
+                              className="h-8 w-8 rounded-lg bg-[#c0392b] text-white flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                              aria-label="Delete item"
+                            >
+                              <Icon name="trash" className="text-white" />
+                            </button>
                           </div>
+                          <motion.div
+                            drag="x"
+                            dragConstraints={{ left: -92, right: 0 }}
+                            dragElastic={0.08}
+                            onDragEnd={(_, info) => { if (info.offset.x < -72) removeItem(it.product.id); }}
+                            className="p-3.5 bg-slate-50 relative z-[1]"
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="text-[12px] text-slate-900 truncate">{it.product.name}</p>
+                                <p className="mt-1 text-[11px] text-slate-500">
+                                  {it.qty} × {money(it.product.price)}
+                                </p>
+                                <p className="text-[10px] text-slate-300 md:hidden">Swipe left to remove</p>
+                              </div>
 
-                          <div className="text-right">
-                            <p className="text-[12px] text-slate-900">{money(it.qty * it.product.price)}</p>
-                          </div>
-                        </div>
+                              <div className="text-right">
+                                <p className="text-[12px] text-slate-900">{money(it.qty * it.product.price)}</p>
+                              </div>
+                            </div>
 
-                        <div className="mt-3 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-2 py-1.5">
-                          <button
-                            type="button"
-                            onClick={() => setQty(it.product.id, it.qty - 1)}
-                            className="h-9 w-10 rounded-2xl hover:bg-slate-50 transition text-slate-700 flex items-center justify-center"
-                            aria-label="Decrease quantity"
-                          >
-                            <Icon name="minus" className="text-slate-700" />
-                          </button>
-                          <span className="text-[12px] text-slate-800">{it.qty}</span>
-                          <button
-                            type="button"
-                            onClick={() => removeItem(it.product.id)}
-                            className="h-9 w-10 rounded-2xl hover:bg-slate-50 transition text-slate-700 flex items-center justify-center"
-                            aria-label="Remove item"
-                          >
-                            <Icon name="trash" className="text-slate-700" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setQty(it.product.id, it.qty + 1)}
-                            className="h-9 w-10 rounded-2xl hover:bg-slate-50 transition text-slate-700 flex items-center justify-center"
-                            aria-label="Increase quantity"
-                          >
-                            <Icon name="plus" className="text-slate-700" />
-                          </button>
+                            <div className="mt-3 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-2 py-1.5">
+                              <button
+                                type="button"
+                                onClick={() => setQty(it.product.id, it.qty - 1)}
+                                className="h-9 w-10 rounded-2xl hover:bg-slate-50 transition text-slate-700 flex items-center justify-center"
+                                aria-label="Decrease quantity"
+                              >
+                                <Icon name="minus" className="text-slate-700" />
+                              </button>
+                              <span className="text-[12px] text-slate-800">{it.qty}</span>
+                              <button
+                                type="button"
+                                onClick={() => setQty(it.product.id, it.qty + 1)}
+                                className="h-9 w-10 rounded-2xl hover:bg-slate-50 transition text-slate-700 flex items-center justify-center"
+                                aria-label="Increase quantity"
+                              >
+                                <Icon name="plus" className="text-slate-700" />
+                              </button>
+                            </div>
+                          </motion.div>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 )}
