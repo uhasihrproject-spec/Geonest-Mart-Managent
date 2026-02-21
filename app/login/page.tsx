@@ -25,6 +25,14 @@ const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
   size: 6 + (i * 7) % 18,
 }));
 
+function SuccessGlyph({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M3.5 8.2L6.6 11.3L12.5 5.4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 // Password strength
 function pwStrength(pw: string): { score: number; label: string; color: string } {
   if (!pw) return { score: 0, label: "", color: "" };
@@ -202,7 +210,7 @@ function LoginContent() {
                 transition={{ type: "spring", stiffness: 500, damping: 25 }}
                 style={{ color: username.trim() ? (stage === "success" ? "#059669" : "#c0392b") : "#94a3b8" }}
               >
-                {stage === "success" ? "✓" : avatarChar}
+                {stage === "success" ? <SuccessGlyph className="h-4 w-4 text-emerald-600" /> : avatarChar}
               </motion.span>
             </motion.div>
           </div>
@@ -214,7 +222,7 @@ function LoginContent() {
               transition={{ duration: 0.35 }}
               className="text-2xl font-black text-slate-900 tracking-tight"
             >
-              {stage === "success" ? "Welcome back! 👋" : "Sign in"}
+              {stage === "success" ? "Welcome back" : "Sign in"}
             </motion.h1>
             <p className="text-sm text-slate-400 mt-1">
               {stage === "success" ? "Redirecting you now…" : "Enter your credentials to continue"}
@@ -360,7 +368,7 @@ function LoginContent() {
                   </>
                 ) : stage === "success" ? (
                   <>
-                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500 }}>✓</motion.span>
+                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500 }}><SuccessGlyph className="h-4 w-4" /></motion.span>
                     Signed in!
                   </>
                 ) : (

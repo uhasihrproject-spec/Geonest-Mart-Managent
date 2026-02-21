@@ -290,7 +290,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </button>
 
           <div className="flex-1 min-w-0">
-            <p className="text-[12px] text-[#ABABAB] hidden sm:block">Ministry of Finance, Budget and National Planning</p>
+            <p className="text-[12px] text-[#ABABAB] hidden sm:block">Geonest Mart Administration</p>
             <p className="text-[13px] text-[#1A1A1A] font-[450] sm:hidden">Geonest Mart</p>
           </div>
 

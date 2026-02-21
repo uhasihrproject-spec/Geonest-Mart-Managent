@@ -121,7 +121,7 @@ export default function SalesPage() {
   const yestStr = toDate(new Date(Date.now() - 86400000));
 
   return (
-    <div className="max-w-5xl mx-auto px-5 py-8 space-y-7" style={{ fontFamily: "'Geist','DM Sans','Helvetica Neue',sans-serif" }}>
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-7" style={{ fontFamily: "'Geist','DM Sans','Helvetica Neue',sans-serif" }}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5">
         <div>

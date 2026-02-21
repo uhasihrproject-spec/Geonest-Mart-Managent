@@ -19,7 +19,7 @@ type SaleItemInput = {
 
 export async function POST(req: Request) {
   try {
-    const supabase = supabaseAdmin(); // ✅ bypass RLS (server only)
+    const supabase = supabaseAdmin(); // bypass RLS (server only)
     const body = await req.json().catch(() => ({}));
 
     const payment_method = String(body.payment_method || "CASH").toUpperCase(); // CASH / MOMO
@@ -108,8 +108,8 @@ export async function POST(req: Request) {
           sale_id: sale.id,
           product_id: it.product_id,
           qty: it.qty,
-          unit_price_at_time: unit, // ✅ required by your DB
-          line_total: line,         // ✅ keep IF your table has it; remove if not
+          unit_price_at_time: unit, // required by your DB
+          line_total: line,         // keep IF your table has it; remove if not
         };
       });
 

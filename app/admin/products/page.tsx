@@ -64,7 +64,7 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-5 py-8" style={{ fontFamily: "'Geist','DM Sans','Helvetica Neue',sans-serif" }}>
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8" style={{ fontFamily: "'Geist','DM Sans','Helvetica Neue',sans-serif" }}>
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
