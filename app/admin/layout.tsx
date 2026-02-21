@@ -174,10 +174,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Brand row */}
         <div className={cls("flex items-center h-14 px-4 border-b border-[#F0F0F0] flex-shrink-0", exp ? "gap-3" : "justify-center")}>
-          <img src="/logo/logo.svg" alt="Fresh Work" className="h-6 w-6 object-contain flex-shrink-0" />
+          <img src="/logo/logo.svg" alt="Geonest Mart" className="h-6 w-6 object-contain flex-shrink-0" />
           {exp && (
             <div className="flex-1 min-w-0">
-              <p className="text-[13px] text-[#1A1A1A] font-[450] leading-none truncate">Fresh Work</p>
+              <p className="text-[13px] text-[#1A1A1A] font-[450] leading-none truncate">Geonest Mart</p>
               <p className="text-[10px] text-[#ABABAB] mt-0.5 leading-none">Admin</p>
             </div>
           )}
@@ -291,7 +291,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <div className="flex-1 min-w-0">
             <p className="text-[12px] text-[#ABABAB] hidden sm:block">Ministry of Finance, Budget and National Planning</p>
-            <p className="text-[13px] text-[#1A1A1A] font-[450] sm:hidden">Fresh Work</p>
+            <p className="text-[13px] text-[#1A1A1A] font-[450] sm:hidden">Geonest Mart</p>
           </div>
 
           <div className="flex items-center gap-3 flex-shrink-0">

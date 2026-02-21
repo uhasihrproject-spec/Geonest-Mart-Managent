@@ -227,11 +227,12 @@ export default function ScanPage() {
   // Poll status for “paid when staff accepts”
   useEffect(() => {
     if (!code) return;
+    const activeCode = code;
     let alive = true;
 
     async function tick() {
       try {
-        const res = await fetch(`/api/scan/lookup?code=${encodeURIComponent(code)}`, { cache: "no-store" });
+        const res = await fetch(`/api/scan/lookup?code=${encodeURIComponent(activeCode)}`, { cache: "no-store" });
         const json = await res.json().catch(() => ({}));
         if (!alive) return;
 
@@ -331,7 +332,7 @@ export default function ScanPage() {
         <div className="px-4 sm:px-6 pt-5 pb-4">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-[11px] text-slate-500">Fresh Work</p>
+              <p className="text-[11px] text-slate-500">Geonest Mart</p>
               <h1 className="text-[17px] text-slate-900 tracking-tight">Self checkout</h1>
             </div>
 

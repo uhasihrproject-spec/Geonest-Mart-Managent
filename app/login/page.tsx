@@ -176,10 +176,10 @@ export default function LoginPage() {
                 transition={{ duration: 0.5 }}
                 className="h-10 w-10 rounded-xl overflow-hidden border border-slate-100 shadow-sm flex-shrink-0"
               >
-                <img src="/logo/logo.svg" alt="Fresh Work" className="h-full w-full object-contain" />
+                <img src="/logo/logo.svg" alt="Geonest Mart" className="h-full w-full object-contain" />
               </motion.div>
               <div>
-                <p className="text-sm font-bold text-slate-900">Fresh Work</p>
+                <p className="text-sm font-bold text-slate-900">Geonest Mart</p>
                 <p className="text-[10px] text-slate-400">Staff Portal</p>
               </div>
             </div>
@@ -381,7 +381,7 @@ export default function LoginPage() {
 
           {/* Footer */}
           <p className="mt-6 text-center text-[11px] text-slate-400">
-            Powered by <span className="font-semibold text-slate-600">Fresh Work</span>
+            Powered by <span className="font-semibold text-slate-600">Geonest Mart</span>
           </p>
         </div>
 

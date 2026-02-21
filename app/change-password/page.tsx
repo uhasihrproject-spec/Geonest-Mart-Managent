@@ -136,10 +136,10 @@ export default function ChangePasswordPage() {
           {/* Header */}
           <div className="flex items-center gap-3 mb-8">
             <div className="h-10 w-10 rounded-xl overflow-hidden border border-slate-100 shadow-sm flex-shrink-0">
-              <img src="/logo/logo.svg" alt="Fresh Work" className="h-full w-full object-contain" />
+              <img src="/logo/logo.svg" alt="Geonest Mart" className="h-full w-full object-contain" />
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-900">Fresh Work</p>
+              <p className="text-sm font-bold text-slate-900">Geonest Mart</p>
               <p className="text-[10px] text-slate-400">Staff Portal</p>
             </div>
           </div>

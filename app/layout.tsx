@@ -2,7 +2,7 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Fresh Work",
+  title: "Geonest Mart",
   description: "Shop Management System",
 };
 

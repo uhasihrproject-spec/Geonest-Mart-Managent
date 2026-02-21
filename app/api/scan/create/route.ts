@@ -12,6 +12,11 @@ function genCode() {
 const SALE_STATUS_PENDING = "PENDING";
 const PAYMENT_STATUS_PENDING = "PENDING";   // change to "PENDING" if your enum is caps
 
+type SaleItemInput = {
+  product_id: string;
+  qty: number;
+};
+
 export async function POST(req: Request) {
   try {
     const supabase = supabaseAdmin(); // ✅ bypass RLS (server only)
@@ -24,12 +29,12 @@ export async function POST(req: Request) {
         : null;
 
     const itemsRaw = Array.isArray(body.items) ? body.items : [];
-    const items = itemsRaw
+    const items: SaleItemInput[] = itemsRaw
       .map((it: any) => ({
         product_id: String(it.product_id || "").trim(),
         qty: Number(it.qty || 0),
       }))
-      .filter((x) => x.product_id && Number.isFinite(x.qty) && x.qty > 0);
+      .filter((x: SaleItemInput) => x.product_id && Number.isFinite(x.qty) && x.qty > 0);
 
     if (!items.length) {
       return NextResponse.json({ error: "Invalid items." }, { status: 400 });
